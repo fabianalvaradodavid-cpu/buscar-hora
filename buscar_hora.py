@@ -38,7 +38,7 @@ def elegir(page, idx, texto_o_regex):
 
 
 def buscar(page):
-    page.goto(URL, wait_until="networkidle")
+    page.goto(URL, wait_until="domcontentloaded", timeout=60000)
     elegir(page, 0, SUCURSAL)
     elegir(page, 1, CENTRO)
     elegir(page, 2, SERVICIO_RE)
