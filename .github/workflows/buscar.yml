@@ -1,0 +1,30 @@
+name: Buscar hora
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # cada 10 min (GitHub puede retrasarlo unos minutos)
+  workflow_dispatch:          # permite ejecutarlo a mano para probar
+
+permissions:
+  contents: write             # para guardar ultimo.txt
+
+jobs:
+  buscar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install playwright requests
+      - run: playwright install --with-deps chromium
+      - run: python buscar_hora.py
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+      - name: Guardar estado
+        run: |
+          git config user.name "bot"
+          git config user.email "bot@users.noreply.github.com"
+          if [ -f ultimo.txt ]; then git add ultimo.txt; fi
+          git diff --cached --quiet || (git commit -m "estado" && git push)
